@@ -1,5 +1,6 @@
 package it.blue4.recipestore.application;
 
+import it.blue4.recipestore.domain.Description;
 import it.blue4.recipestore.domain.Recipe;
 import it.blue4.recipestore.domain.RecipeRepository;
 import it.blue4.recipestore.domain.Title;
@@ -15,7 +16,7 @@ class RecipeCreationTest {
     @DisplayName("create should persist title from the request")
     void  createShouldPersistTitle(){
         // Given
-        CreateRecipeRequest request = new CreateRecipeRequest("title");
+        CreateRecipeRequest request = new CreateRecipeRequest("title", "description");
 
         // When
         RecipeRepository repository = Mockito.mock(RecipeRepository.class);
@@ -30,5 +31,26 @@ class RecipeCreationTest {
 
         Assertions.assertThat(captured.getTitle()).isInstanceOf(Title.class);
         Assertions.assertThat(captured.getTitle().title()).isEqualTo("title");
+    }
+
+    @Test
+    @DisplayName("create should persist description from the request")
+    void  createShouldPersistDescription(){
+        // Given
+        CreateRecipeRequest request = new CreateRecipeRequest("title", "description");
+
+        // When
+        RecipeRepository repository = Mockito.mock(RecipeRepository.class);
+        RecipeService recipeService = new RecipeService(repository);
+
+        recipeService.create(request);
+
+        // Then
+        ArgumentCaptor<Recipe> recipeCaptor = ArgumentCaptor.forClass(Recipe.class);
+        Mockito.verify(repository).persist(recipeCaptor.capture());
+        Recipe captured = recipeCaptor.getValue();
+
+        Assertions.assertThat(captured.getDescription()).isInstanceOf(Description.class);
+        Assertions.assertThat(captured.getDescription().description()).isEqualTo("description");
     }
 }
