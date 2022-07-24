@@ -1,7 +1,5 @@
 package it.blue4.recipestore.domain;
 
-import it.blue4.recipestore.application.Instructions;
-
 public class Recipe {
     private Title title;
     private Description description;

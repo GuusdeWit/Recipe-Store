@@ -1,9 +1,6 @@
 package it.blue4.recipestore.application;
 
-import it.blue4.recipestore.domain.Description;
-import it.blue4.recipestore.domain.Recipe;
-import it.blue4.recipestore.domain.RecipeRepository;
-import it.blue4.recipestore.domain.Title;
+import it.blue4.recipestore.domain.*;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

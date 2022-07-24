@@ -1,9 +1,7 @@
 package it.blue4.recipestore.application;
 
-import it.blue4.recipestore.domain.Description;
 import it.blue4.recipestore.domain.Recipe;
 import it.blue4.recipestore.domain.RecipeRepository;
-import it.blue4.recipestore.domain.Title;
 
 public class RecipeService {
     private final RecipeRepository recipeRepository;
@@ -13,10 +11,7 @@ public class RecipeService {
     }
 
     public void create(CreateRecipeRequest request) {
-        Title title = new Title(request.getTitle());
-        Description description = new Description(request.getDescription());
-        Instructions instructions = new Instructions(request.getInstructions());
-        Recipe recipe = new Recipe(title, description, instructions);
+        Recipe recipe = new Recipe(request.getTitle(), request.getDescription(), request.getInstructions());
         recipeRepository.persist(recipe);
     }
 }

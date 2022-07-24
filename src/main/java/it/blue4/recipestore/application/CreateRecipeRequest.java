@@ -1,25 +1,29 @@
 package it.blue4.recipestore.application;
 
+import it.blue4.recipestore.domain.Description;
+import it.blue4.recipestore.domain.Instructions;
+import it.blue4.recipestore.domain.Title;
+
 public class CreateRecipeRequest {
-    private String title;
-    private String description;
-    private String instructions;
+    private Title title;
+    private Description description;
+    private Instructions instructions;
 
     public CreateRecipeRequest(String title, String description, String instructions) {
-        this.title = title;
-        this.description = description;
-        this.instructions = instructions;
+        this.title = new Title(title);
+        this.description = new Description(description);
+        this.instructions = new Instructions(instructions);
     }
 
-    public String getTitle() {
+    public Title getTitle() {
         return title;
     }
 
-    public String getDescription() {
+    public Description getDescription() {
         return description;
     }
 
-    public String getInstructions() {
+    public Instructions getInstructions() {
         return instructions;
     }
 }
