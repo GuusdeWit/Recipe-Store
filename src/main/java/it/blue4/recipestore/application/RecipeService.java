@@ -15,7 +15,8 @@ public class RecipeService {
     public void create(CreateRecipeRequest request) {
         Title title = new Title(request.getTitle());
         Description description = new Description(request.getDescription());
-        Recipe recipe = new Recipe(title, description);
+        Instructions instructions = new Instructions(request.getInstructions());
+        Recipe recipe = new Recipe(title, description, instructions);
         recipeRepository.persist(recipe);
     }
 }
