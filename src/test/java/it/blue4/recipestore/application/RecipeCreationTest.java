@@ -12,7 +12,8 @@ class RecipeCreationTest {
     private final CreateRecipeRequest defaultRequest = new CreateRecipeRequest(
             "title",
             "description",
-            "instructions for the recipe"
+            "instructions for the recipe",
+            2
     );
 
     private final RecipeRepository repository = Mockito.mock(RecipeRepository.class);
@@ -56,6 +57,19 @@ class RecipeCreationTest {
 
         Assertions.assertThat(captured.getInstructions()).isInstanceOf(Instructions.class);
         Assertions.assertThat(captured.getInstructions().instructions()).isEqualTo("instructions for the recipe");
+    }
+
+    @Test
+    @DisplayName("create should persist number of servings from the request")
+    void createShouldPersistNumberOfServings() {
+        // When
+        recipeService.create(defaultRequest);
+
+        // Then
+        Recipe captured = validatePersistIsTriggeredAndReturnArgument();
+
+        Assertions.assertThat(captured.getServings()).isInstanceOf(Servings.class);
+        Assertions.assertThat(captured.getServings().number()).isEqualTo(2);
     }
 
     private Recipe validatePersistIsTriggeredAndReturnArgument() {

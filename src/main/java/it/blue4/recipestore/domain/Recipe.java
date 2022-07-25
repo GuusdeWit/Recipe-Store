@@ -4,11 +4,13 @@ public class Recipe {
     private Title title;
     private Description description;
     private Instructions instructions;
+    private Servings servings;
 
-    public Recipe(Title title, Description description, Instructions instructions) {
+    public Recipe(Title title, Description description, Instructions instructions, Servings servings) {
         this.title = title;
         this.description = description;
         this.instructions = instructions;
+        this.servings = servings;
     }
 
     public Title getTitle() {
@@ -21,5 +23,9 @@ public class Recipe {
 
     public Instructions getInstructions() {
         return instructions;
+    }
+
+    public Servings getServings() {
+        return servings;
     }
 }
