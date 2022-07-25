@@ -1,6 +1,7 @@
 package it.blue4.recipestore.domain;
 
 public class Recipe {
+    private RecipeId recipeId = new RecipeId();
     private Title title;
     private Description description;
     private Instructions instructions;
@@ -11,6 +12,10 @@ public class Recipe {
         this.description = description;
         this.instructions = instructions;
         this.servings = servings;
+    }
+
+    public RecipeId getRecipeId() {
+        return recipeId;
     }
 
     public Title getTitle() {

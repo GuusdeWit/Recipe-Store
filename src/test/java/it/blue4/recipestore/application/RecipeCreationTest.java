@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.util.UUID;
+
 class RecipeCreationTest {
 
     private final CreateRecipeRequest defaultRequest = new CreateRecipeRequest(
@@ -61,7 +63,7 @@ class RecipeCreationTest {
 
     @Test
     @DisplayName("create should persist number of servings from the request")
-    void createShouldPersistNumberOfServings() {
+    void createShouldPersistId() {
         // When
         recipeService.create(defaultRequest);
 
@@ -70,6 +72,19 @@ class RecipeCreationTest {
 
         Assertions.assertThat(captured.getServings()).isInstanceOf(Servings.class);
         Assertions.assertThat(captured.getServings().number()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("create should persist a RecipeId")
+    void createShouldPersistNumberOfServings() {
+        // When
+        recipeService.create(defaultRequest);
+
+        // Then
+        Recipe captured = validatePersistIsTriggeredAndReturnArgument();
+
+        Assertions.assertThat(captured.getRecipeId()).isInstanceOf(RecipeId.class);
+        Assertions.assertThat(captured.getRecipeId().id()).isInstanceOf(UUID.class);
     }
 
     private Recipe validatePersistIsTriggeredAndReturnArgument() {
