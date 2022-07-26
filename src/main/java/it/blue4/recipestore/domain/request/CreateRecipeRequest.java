@@ -26,8 +26,8 @@ public class CreateRecipeRequest {
         this.servings = new Servings(numberOfServings);
         this.ingredients = ingredients.stream().map(incomingIngredient -> new Ingredient(
                 new IngredientName(incomingIngredient.name()),
-                IngredientType.valueOf(incomingIngredient.type()),
-                new IngredientQuantity(incomingIngredient.amount(), MeasuringUnit.valueOf(incomingIngredient.unit()))
+                IngredientType.parseValue(incomingIngredient.type()),
+                new IngredientQuantity(incomingIngredient.amount(), MeasuringUnit.parseValue(incomingIngredient.unit()))
         )).toList();
     }
 
