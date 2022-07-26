@@ -1,6 +1,7 @@
 package it.blue4.recipestore.domain.model;
 
 import it.blue4.recipestore.domain.model.ingredient.Ingredient;
+import it.blue4.recipestore.domain.model.ingredient.IngredientType;
 import it.blue4.recipestore.domain.request.CreateRecipeRequest;
 
 import java.util.Collections;
@@ -25,16 +26,6 @@ public class Recipe {
         this.ingredients = Collections.unmodifiableList(requireAllNonNull(ingredients));
     }
 
-    public static Recipe from(CreateRecipeRequest request) {
-        return new Recipe(
-                request.getTitle(),
-                request.getDescription(),
-                request.getInstructions(),
-                request.getServings(),
-                request.getIngredients()
-        );
-    }
-
     public RecipeId getRecipeId() {
         return recipeId;
     }
@@ -57,5 +48,20 @@ public class Recipe {
 
     public List<Ingredient> getIngredients() {
         return ingredients;
+    }
+
+    public boolean isVegetarian() {
+        return ingredients.stream().noneMatch(ingredient ->
+                ingredient.type().equals(IngredientType.MEAT) || ingredient.type().equals(IngredientType.FISH));
+    }
+
+    public static Recipe from(CreateRecipeRequest request) {
+        return new Recipe(
+                request.getTitle(),
+                request.getDescription(),
+                request.getInstructions(),
+                request.getServings(),
+                request.getIngredients()
+        );
     }
 }

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class RecipeTest {
@@ -40,6 +41,57 @@ class RecipeTest {
 
         // Then
         assertThrows(UnsupportedOperationException.class, () -> ingredients.add(null));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideIngredientTypes")
+    void isVegetarianBasedOnMeatOrFish(List<IngredientType> types, boolean expected) {
+        // Given
+        Recipe recipe = new Recipe(
+                new Title("title"),
+                new Description("description"),
+                new Instructions("instructions"),
+                new Servings(2),
+                types.stream().map(type -> new Ingredient(
+                        new IngredientName("tomato"),
+                        type,
+                        new IngredientQuantity(BigDecimal.ONE, MeasuringUnit.PIECE))).toList()
+        );
+
+        // When
+        boolean result = recipe.isVegetarian();
+
+        // Then
+        assertThat(result).isEqualTo(expected);
+    }
+
+    static Stream<Arguments> provideIngredientTypes() {
+        return Stream.of(
+                Arguments.of(
+                        List.of(IngredientType.PLANT_BASED),
+                        true
+                ),
+                Arguments.of(
+                        List.of(IngredientType.PLANT_BASED, IngredientType.DAIRY, IngredientType.SPICE),
+                        true
+                ),
+                Arguments.of(
+                        List.of(IngredientType.MEAT),
+                        false
+                ),
+                Arguments.of(
+                        List.of(IngredientType.FISH),
+                        false
+                ),
+                Arguments.of(
+                        List.of(IngredientType.PLANT_BASED, IngredientType.DAIRY, IngredientType.MEAT),
+                        false
+                ),
+                Arguments.of(
+                        List.of(),
+                        true
+                )
+        );
     }
 
     @ParameterizedTest
