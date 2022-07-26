@@ -3,6 +3,7 @@ package it.blue4.recipestore.domain.model;
 import it.blue4.recipestore.domain.model.ingredient.Ingredient;
 import it.blue4.recipestore.domain.request.CreateRecipeRequest;
 
+import java.util.Collections;
 import java.util.List;
 
 import static it.blue4.recipestore.util.ValidationUtils.requireAllNonNull;
@@ -21,7 +22,7 @@ public class Recipe {
         this.description = requireNonNull(description);
         this.instructions = requireNonNull(instructions);
         this.servings = requireNonNull(servings);
-        this.ingredients = requireAllNonNull(ingredients);
+        this.ingredients = Collections.unmodifiableList(requireAllNonNull(ingredients));
     }
 
     public static Recipe from(CreateRecipeRequest request) {

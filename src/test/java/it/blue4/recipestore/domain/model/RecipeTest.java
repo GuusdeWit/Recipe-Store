@@ -6,6 +6,8 @@ import it.blue4.recipestore.domain.model.ingredient.IngredientName;
 import it.blue4.recipestore.domain.model.ingredient.IngredientQuantity;
 import it.blue4.recipestore.domain.model.ingredient.IngredientType;
 import it.blue4.recipestore.domain.model.ingredient.MeasuringUnit;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -20,6 +22,26 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class RecipeTest {
+
+    @Test
+    @DisplayName("getIngredients should provide an unmodifiable list")
+    void getIngredientsShouldBeUnmodifiable() {
+        // Given
+        Recipe recipe = new Recipe(
+                new Title("title"),
+                new Description("description"),
+                new Instructions("instructions"),
+                new Servings(2),
+                new ArrayList<>()
+        );
+
+        // When
+        List<Ingredient> ingredients = recipe.getIngredients();
+
+        // Then
+        assertThrows(UnsupportedOperationException.class, () -> ingredients.add(null));
+    }
+
     @ParameterizedTest
     @MethodSource("provideInvalidArguments")
     void constructor_shouldNotAllowNullParameters(
