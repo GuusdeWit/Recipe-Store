@@ -1,4 +1,4 @@
-package it.blue4.recipestore.domain;
+package it.blue4.recipestore.domain.model;
 
 import java.util.UUID;
 

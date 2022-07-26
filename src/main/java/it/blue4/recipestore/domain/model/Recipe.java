@@ -1,4 +1,8 @@
-package it.blue4.recipestore.domain;
+package it.blue4.recipestore.domain.model;
+
+import it.blue4.recipestore.domain.model.ingredient.Ingredient;
+
+import java.util.List;
 
 public class Recipe {
     private RecipeId recipeId = new RecipeId();
@@ -6,12 +10,14 @@ public class Recipe {
     private Description description;
     private Instructions instructions;
     private Servings servings;
+    private List<Ingredient> ingredients;
 
-    public Recipe(Title title, Description description, Instructions instructions, Servings servings) {
+    public Recipe(Title title, Description description, Instructions instructions, Servings servings, List<Ingredient> ingredients) {
         this.title = title;
         this.description = description;
         this.instructions = instructions;
         this.servings = servings;
+        this.ingredients = ingredients;
     }
 
     public RecipeId getRecipeId() {
@@ -32,5 +38,9 @@ public class Recipe {
 
     public Servings getServings() {
         return servings;
+    }
+
+    public List<Ingredient> getIngredients() {
+        return ingredients;
     }
 }
