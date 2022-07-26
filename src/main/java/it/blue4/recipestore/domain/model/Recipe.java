@@ -1,6 +1,7 @@
 package it.blue4.recipestore.domain.model;
 
 import it.blue4.recipestore.domain.model.ingredient.Ingredient;
+import it.blue4.recipestore.domain.request.CreateRecipeRequest;
 
 import java.util.List;
 
@@ -21,6 +22,16 @@ public class Recipe {
         this.instructions = requireNonNull(instructions);
         this.servings = requireNonNull(servings);
         this.ingredients = requireAllNonNull(ingredients);
+    }
+
+    public static Recipe from(CreateRecipeRequest request) {
+        return new Recipe(
+                request.getTitle(),
+                request.getDescription(),
+                request.getInstructions(),
+                request.getServings(),
+                request.getIngredients()
+        );
     }
 
     public RecipeId getRecipeId() {
