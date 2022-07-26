@@ -4,20 +4,23 @@ import it.blue4.recipestore.domain.model.ingredient.Ingredient;
 
 import java.util.List;
 
+import static it.blue4.recipestore.util.ValidationUtils.requireAllNonNull;
+import static it.blue4.recipestore.util.ValidationUtils.requireNonNull;
+
 public class Recipe {
-    private RecipeId recipeId = new RecipeId();
-    private Title title;
-    private Description description;
-    private Instructions instructions;
-    private Servings servings;
-    private List<Ingredient> ingredients;
+    private final RecipeId recipeId = new RecipeId();
+    private final Title title;
+    private final Description description;
+    private final Instructions instructions;
+    private final Servings servings;
+    private final List<Ingredient> ingredients;
 
     public Recipe(Title title, Description description, Instructions instructions, Servings servings, List<Ingredient> ingredients) {
-        this.title = title;
-        this.description = description;
-        this.instructions = instructions;
-        this.servings = servings;
-        this.ingredients = ingredients;
+        this.title = requireNonNull(title);
+        this.description = requireNonNull(description);
+        this.instructions = requireNonNull(instructions);
+        this.servings = requireNonNull(servings);
+        this.ingredients = requireAllNonNull(ingredients);
     }
 
     public RecipeId getRecipeId() {

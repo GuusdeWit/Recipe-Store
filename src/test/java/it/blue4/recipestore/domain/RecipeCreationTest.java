@@ -13,7 +13,6 @@ import it.blue4.recipestore.domain.model.ingredient.IngredientType;
 import it.blue4.recipestore.domain.model.ingredient.MeasuringUnit;
 import it.blue4.recipestore.domain.request.CreateRecipeRequest;
 import it.blue4.recipestore.domain.request.IncomingIngredient;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -22,6 +21,8 @@ import org.mockito.Mockito;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class RecipeCreationTest {
 
@@ -48,8 +49,8 @@ class RecipeCreationTest {
         // Then
         Recipe captured = validatePersistIsTriggeredAndReturnArgument();
 
-        Assertions.assertThat(captured.getTitle()).isInstanceOf(Title.class);
-        Assertions.assertThat(captured.getTitle().title()).isEqualTo("title");
+        assertThat(captured.getTitle()).isInstanceOf(Title.class);
+        assertThat(captured.getTitle().title()).isEqualTo("title");
     }
 
     @Test
@@ -61,8 +62,8 @@ class RecipeCreationTest {
         // Then
         Recipe captured = validatePersistIsTriggeredAndReturnArgument();
 
-        Assertions.assertThat(captured.getDescription()).isInstanceOf(Description.class);
-        Assertions.assertThat(captured.getDescription().description()).isEqualTo("description");
+        assertThat(captured.getDescription()).isInstanceOf(Description.class);
+        assertThat(captured.getDescription().description()).isEqualTo("description");
     }
 
     @Test
@@ -74,8 +75,8 @@ class RecipeCreationTest {
         // Then
         Recipe captured = validatePersistIsTriggeredAndReturnArgument();
 
-        Assertions.assertThat(captured.getInstructions()).isInstanceOf(Instructions.class);
-        Assertions.assertThat(captured.getInstructions().instructions()).isEqualTo("instructions for the recipe");
+        assertThat(captured.getInstructions()).isInstanceOf(Instructions.class);
+        assertThat(captured.getInstructions().instructions()).isEqualTo("instructions for the recipe");
     }
 
     @Test
@@ -87,8 +88,8 @@ class RecipeCreationTest {
         // Then
         Recipe captured = validatePersistIsTriggeredAndReturnArgument();
 
-        Assertions.assertThat(captured.getServings()).isInstanceOf(Servings.class);
-        Assertions.assertThat(captured.getServings().number()).isEqualTo(2);
+        assertThat(captured.getServings()).isInstanceOf(Servings.class);
+        assertThat(captured.getServings().number()).isEqualTo(2);
     }
 
     @Test
@@ -100,8 +101,8 @@ class RecipeCreationTest {
         // Then
         Recipe captured = validatePersistIsTriggeredAndReturnArgument();
 
-        Assertions.assertThat(captured.getRecipeId()).isInstanceOf(RecipeId.class);
-        Assertions.assertThat(captured.getRecipeId().id()).isInstanceOf(UUID.class);
+        assertThat(captured.getRecipeId()).isInstanceOf(RecipeId.class);
+        assertThat(captured.getRecipeId().id()).isInstanceOf(UUID.class);
     }
 
     @Test
@@ -113,16 +114,16 @@ class RecipeCreationTest {
         // Then
         Recipe captured = validatePersistIsTriggeredAndReturnArgument();
 
-        Assertions.assertThat(captured.getIngredients()).hasSize(1);
+        assertThat(captured.getIngredients()).hasSize(1);
         Ingredient ingredient = captured.getIngredients().get(0);
-        Assertions.assertThat(ingredient.name()).isInstanceOf(IngredientName.class);
-        Assertions.assertThat(ingredient.name().name()).isEqualTo("sausage");
-        Assertions.assertThat(ingredient.type()).isInstanceOf(IngredientType.class);
-        Assertions.assertThat(ingredient.type()).isEqualTo(IngredientType.MEAT);
-        Assertions.assertThat(ingredient.quantity()).isInstanceOf(IngredientQuantity.class);
-        Assertions.assertThat(ingredient.quantity().amount()).isEqualTo(BigDecimal.valueOf(1));
-        Assertions.assertThat(ingredient.quantity().unit()).isInstanceOf(MeasuringUnit.class);
-        Assertions.assertThat(ingredient.quantity().unit()).isEqualTo(MeasuringUnit.PIECE);
+        assertThat(ingredient.name()).isInstanceOf(IngredientName.class);
+        assertThat(ingredient.name().name()).isEqualTo("sausage");
+        assertThat(ingredient.type()).isInstanceOf(IngredientType.class);
+        assertThat(ingredient.type()).isEqualTo(IngredientType.MEAT);
+        assertThat(ingredient.quantity()).isInstanceOf(IngredientQuantity.class);
+        assertThat(ingredient.quantity().amount()).isEqualTo(BigDecimal.valueOf(1));
+        assertThat(ingredient.quantity().unit()).isInstanceOf(MeasuringUnit.class);
+        assertThat(ingredient.quantity().unit()).isEqualTo(MeasuringUnit.PIECE);
     }
 
     private Recipe validatePersistIsTriggeredAndReturnArgument() {

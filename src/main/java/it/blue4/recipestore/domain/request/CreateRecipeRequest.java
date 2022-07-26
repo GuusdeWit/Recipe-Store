@@ -13,11 +13,11 @@ import it.blue4.recipestore.domain.model.ingredient.MeasuringUnit;
 import java.util.List;
 
 public class CreateRecipeRequest {
-    private Title title;
-    private Description description;
-    private Instructions instructions;
-    private Servings servings;
-    private List<Ingredient> ingredients;
+    private final Title title;
+    private final Description description;
+    private final Instructions instructions;
+    private final Servings servings;
+    private final List<Ingredient> ingredients;
 
     public CreateRecipeRequest(String title, String description, String instructions, int numberOfServings, List<IncomingIngredient> ingredients) {
         this.title = new Title(title);
