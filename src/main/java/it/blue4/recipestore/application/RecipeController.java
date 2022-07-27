@@ -8,9 +8,11 @@ import it.blue4.recipestore.domain.RecipeService;
 import it.blue4.recipestore.domain.ValidationException;
 import it.blue4.recipestore.domain.model.Recipe;
 import it.blue4.recipestore.domain.request.CreateRecipeRequest;
+import it.blue4.recipestore.domain.request.DeleteRecipeRequest;
 import it.blue4.recipestore.domain.request.RetrieveOneRecipeRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,6 +52,13 @@ public class RecipeController {
         RetrieveOneRecipeRequest request = new RetrieveOneRecipeRequest(id);
         Recipe recipe = recipeService.retrieve(request);
         return ResponseEntity.ok(RecipeDTO.from(recipe));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRecipeById(@PathVariable UUID id) {
+        DeleteRecipeRequest request = new DeleteRecipeRequest(id);
+        recipeService.delete(request);
+        return ResponseEntity.ok().build();
     }
 
     @ExceptionHandler(ValidationException.class)

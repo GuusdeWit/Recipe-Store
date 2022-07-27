@@ -1,5 +1,6 @@
 package it.blue4.recipestore.infrastructure.repository;
 
+import it.blue4.recipestore.TestPersistService;
 import it.blue4.recipestore.domain.model.Description;
 import it.blue4.recipestore.domain.model.Instructions;
 import it.blue4.recipestore.domain.model.Recipe;
@@ -12,7 +13,6 @@ import it.blue4.recipestore.domain.model.ingredient.IngredientQuantity;
 import it.blue4.recipestore.domain.model.ingredient.IngredientType;
 import it.blue4.recipestore.domain.model.ingredient.MeasuringUnit;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.math.BigDecimal;
@@ -28,8 +29,10 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @SpringBootTest
+@Import(MongoTestPersistService.class)
 class MongoRecipeRepositoryTest {
 
     @Autowired
@@ -37,6 +40,9 @@ class MongoRecipeRepositoryTest {
 
     @Autowired
     MongoRecipeRepository repository;
+
+    @Autowired
+    MongoTestPersistService persistService;
 
     @AfterEach
     void reset() {
@@ -144,18 +150,7 @@ class MongoRecipeRepositoryTest {
         void retrieveByIdShouldReturnRecipeWhenFound() {
             // Given
             UUID id = UUID.randomUUID();
-            MongoRecipe mongoRecipe = new MongoRecipe(
-                    id,
-                    "my title",
-                    "descriptive",
-                    "these are the instructions",
-                    5,
-                    List.of(
-                            new MongoIngredient("ing", "MEAT", BigDecimal.ONE, "PIECE")
-                    ),
-                    false
-            );
-            mongoTemplate.insert(mongoRecipe);
+            persistService.persistOneWithId(id);
 
             // When
             var result = repository.retrieveById(new RecipeId(id));
@@ -164,56 +159,59 @@ class MongoRecipeRepositoryTest {
             assertThat(result).isNotEmpty();
             Recipe recipe = result.get();
             assertThat(recipe.getRecipeId()).isEqualTo(new RecipeId(id));
-            assertThat(recipe.getTitle().title()).isEqualTo(mongoRecipe.getTitle());
-            assertThat(recipe.getDescription().description()).isEqualTo(mongoRecipe.getDescription());
-            assertThat(recipe.getInstructions().instructions()).isEqualTo(mongoRecipe.getInstructions());
-            assertThat(recipe.getServings().number()).isEqualTo(mongoRecipe.getNumberOfServings());
+            assertThat(recipe.getTitle().title()).isEqualTo(TestPersistService.title);
+            assertThat(recipe.getDescription().description()).isEqualTo(TestPersistService.description);
+            assertThat(recipe.getInstructions().instructions()).isEqualTo(TestPersistService.instructions);
+            assertThat(recipe.getServings().number()).isEqualTo(TestPersistService.numberOfServings);
 
             assertThat(recipe.getIngredients()).hasSize(1);
             Ingredient ingredient = recipe.getIngredients().get(0);
-            assertThat(ingredient.name().name()).isEqualTo(mongoRecipe.getIngredients().get(0).name());
-            assertThat(ingredient.type().name()).isEqualTo(mongoRecipe.getIngredients().get(0).type());
-            assertThat(ingredient.quantity().amount()).isEqualTo(mongoRecipe.getIngredients().get(0).amount());
-            assertThat(ingredient.quantity().unit().name()).isEqualTo(mongoRecipe.getIngredients().get(0).unit());
+            assertThat(ingredient.name().name()).isEqualTo(TestPersistService.ingredientName);
+            assertThat(ingredient.type().name()).isEqualTo(TestPersistService.ingredientType);
+            assertThat(ingredient.quantity().amount()).isEqualTo(TestPersistService.ingredientAmount);
+            assertThat(ingredient.quantity().unit().name()).isEqualTo(TestPersistService.ingredientUnit);
         }
 
         @Test
         void retrieveAllShouldReturnListOfAllPersistedRecipes() {
             // Given
             UUID id1 = UUID.randomUUID();
-            MongoRecipe mongoRecipe1 = new MongoRecipe(
-                    id1,
-                    "my title",
-                    "descriptive",
-                    "these are the instructions",
-                    5,
-                    List.of(
-                            new MongoIngredient("ing", "MEAT", BigDecimal.ONE, "PIECE")
-                    ),
-                    false
-            );
-
             UUID id2 = UUID.randomUUID();
-            MongoRecipe mongoRecipe2 = new MongoRecipe(
-                    id2,
-                    "my second title",
-                    "descriptive",
-                    "these are the instructions",
-                    1,
-                    List.of(
-                            new MongoIngredient("name", "MEAT", BigDecimal.valueOf(1.7), "TEASPOON")
-                    ),
-                    false
-            );
-
-            mongoTemplate.insert(mongoRecipe1);
-            mongoTemplate.insert(mongoRecipe2);
+            persistService.persistOneWithId(id1);
+            persistService.persistOneWithId(id2);
 
             // When
             var result = repository.retrieveAll();
 
             // Then
             assertThat(result).hasSize(2);
+        }
+    }
+
+    @Nested
+    class DeleteTests {
+
+        @Test
+        void deleteShouldDeletePersisted() {
+            // Given
+            UUID id = UUID.randomUUID();
+            persistService.persistOneWithId(id);
+
+            // When
+            repository.delete(new RecipeId(id));
+
+            // Then
+            var result = mongoTemplate.findById(id, MongoRecipe.class);
+            assertThat(result).isNull();
+        }
+
+        @Test
+        void deleteShouldNotThrowWhenIdDoesNotExist() {
+            // Given
+            UUID id = UUID.randomUUID();
+
+            // Then
+            assertDoesNotThrow(() -> repository.delete(new RecipeId(id)));
         }
     }
 }

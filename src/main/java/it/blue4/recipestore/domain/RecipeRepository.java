@@ -12,4 +12,6 @@ public interface RecipeRepository {
     Optional<Recipe> retrieveById(RecipeId recipeId);
 
     List<Recipe> retrieveAll();
+
+    void delete(RecipeId recipeId);
 }

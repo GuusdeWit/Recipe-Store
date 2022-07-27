@@ -4,6 +4,8 @@ import it.blue4.recipestore.domain.RecipeRepository;
 import it.blue4.recipestore.domain.model.Recipe;
 import it.blue4.recipestore.domain.model.RecipeId;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,5 +35,10 @@ public class MongoRecipeRepository implements RecipeRepository {
     public List<Recipe> retrieveAll() {
         List<MongoRecipe> data = mongoTemplate.findAll(MongoRecipe.class);
         return data.stream().map(MongoRecipe::toDomainRecipe).toList();
+    }
+
+    @Override
+    public void delete(RecipeId recipeId) {
+        mongoTemplate.remove(new Query(Criteria.where("id").is(recipeId.id())), MongoRecipe.class);
     }
 }

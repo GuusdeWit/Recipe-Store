@@ -2,8 +2,7 @@ package it.blue4.recipestore;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import it.blue4.recipestore.infrastructure.repository.MongoIngredient;
-import it.blue4.recipestore.infrastructure.repository.MongoRecipe;
+import it.blue4.recipestore.infrastructure.repository.MongoTestPersistService;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,24 +12,24 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.context.annotation.Import;
 
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
+@Import(MongoTestPersistService.class)
 class RecipeComponentTest {
 
     @Autowired
-    MongoTemplate mongoTemplate;
+    TestPersistService persistService;
 
     @LocalServerPort
     int port;
@@ -42,7 +41,7 @@ class RecipeComponentTest {
 
     @AfterEach
     void cleanUp() {
-        mongoTemplate.dropCollection(MongoRecipe.class);
+        persistService.removeAllData();
     }
 
     @Nested
@@ -51,8 +50,7 @@ class RecipeComponentTest {
         @DisplayName("post to the recipes endpoint should return a 201 and create an entry in the database")
         void postShouldReturn201AndCreateDatabaseEntry() {
             // Given
-            var before = mongoTemplate.findAll(MongoRecipe.class);
-            assertThat(before).isEmpty();
+            assertThat(persistService.dataStoreIsEmpty()).isTrue();
 
             given()
                     .basePath("/recipes")
@@ -80,12 +78,7 @@ class RecipeComponentTest {
                     .then()
                     .statusCode(HttpStatus.SC_CREATED);
 
-            var after = mongoTemplate.findAll(MongoRecipe.class);
-            assertThat(after).hasSize(1);
-            var recipe = after.get(0);
-            assertThat(recipe.getTitle()).isEqualTo("title");
-            assertThat(recipe.getDescription()).isEqualTo("description");
-            assertThat(recipe.getInstructions()).isEqualTo("instructions for the recipe");
+            assertThat(persistService.dataStoreContainsExactly(1)).isTrue();
         }
 
         @Test
@@ -107,7 +100,7 @@ class RecipeComponentTest {
                     .statusCode(HttpStatus.SC_BAD_REQUEST)
                     .body("message", containsString("Validation error when processing request"));
 
-            assertThat(mongoTemplate.findAll(MongoRecipe.class)).isEmpty();
+            assertThat(persistService.dataStoreIsEmpty()).isTrue();
         }
     }
 
@@ -118,18 +111,7 @@ class RecipeComponentTest {
         @DisplayName("get should return data with 200 if found")
         void getShouldReturn200WhenFound() {
             UUID id = UUID.randomUUID();
-            MongoRecipe mongoRecipe = new MongoRecipe(
-                    id,
-                    "my title",
-                    "descriptive",
-                    "these are the instructions",
-                    5,
-                    List.of(
-                            new MongoIngredient("name", "MEAT", BigDecimal.ONE, "PIECE")
-                    ),
-                    false
-            );
-            mongoTemplate.insert(mongoRecipe);
+            persistService.persistOneWithId(id);
 
             given()
                     .basePath("/recipes/" + id)
@@ -138,14 +120,14 @@ class RecipeComponentTest {
                     .then()
                     .statusCode(HttpStatus.SC_OK)
                     .body("id", equalTo(id.toString()))
-                    .and().body("title", equalTo("my title"))
-                    .and().body("description", equalTo("descriptive"))
-                    .and().body("instructions", equalTo("these are the instructions"))
-                    .and().body("numberOfServings", equalTo(5))
-                    .and().body("ingredients[0].name", equalTo("name"))
-                    .and().body("ingredients[0].type", equalTo("MEAT"))
-                    .and().body("ingredients[0].amount", equalTo(1))
-                    .and().body("ingredients[0].unit", equalTo("PIECE"));
+                    .and().body("title", equalTo(TestPersistService.title))
+                    .and().body("description", equalTo(TestPersistService.description))
+                    .and().body("instructions", equalTo(TestPersistService.instructions))
+                    .and().body("numberOfServings", equalTo(TestPersistService.numberOfServings))
+                    .and().body("ingredients[0].name", equalTo(TestPersistService.ingredientName))
+                    .and().body("ingredients[0].type", equalTo(TestPersistService.ingredientType))
+                    .and().body("ingredients[0].amount", is(TestPersistService.ingredientAmount.floatValue()))
+                    .and().body("ingredients[0].unit", equalTo(TestPersistService.ingredientUnit));
         }
 
         @Test
@@ -166,33 +148,9 @@ class RecipeComponentTest {
         void getAllShouldReturnAll() {
 
             UUID id1 = UUID.randomUUID();
-            MongoRecipe mongoRecipe1 = new MongoRecipe(
-                    id1,
-                    "my title",
-                    "descriptive",
-                    "these are the instructions",
-                    5,
-                    List.of(
-                            new MongoIngredient("ing", "MEAT", BigDecimal.ONE, "PIECE")
-                    ),
-                    false
-            );
-
             UUID id2 = UUID.randomUUID();
-            MongoRecipe mongoRecipe2 = new MongoRecipe(
-                    id2,
-                    "my second title",
-                    "descriptive",
-                    "these are the instructions",
-                    1,
-                    List.of(
-                            new MongoIngredient("name", "MEAT", BigDecimal.valueOf(1.7), "TEASPOON")
-                    ),
-                    false
-            );
-
-            mongoTemplate.insert(mongoRecipe1);
-            mongoTemplate.insert(mongoRecipe2);
+            persistService.persistOneWithId(id1);
+            persistService.persistOneWithId(id2);
 
             given()
                     .basePath("/recipes")
@@ -201,6 +159,25 @@ class RecipeComponentTest {
                     .then()
                     .statusCode(HttpStatus.SC_OK)
                     .body("size()", equalTo(2));
+        }
+    }
+
+    @Nested
+    class DeleteTests {
+        @Test
+        @DisplayName("delete should remove persisted data and return 200")
+        void deleteShouldRemoveFromDataStore() {
+            UUID id = UUID.randomUUID();
+            persistService.persistOneWithId(id);
+
+            given()
+                    .basePath("/recipes/" + id)
+                    .when()
+                    .request("DELETE")
+                    .then()
+                    .statusCode(HttpStatus.SC_OK);
+
+            assertThat(persistService.dataStoreDoesNotContainElementWithId(id)).isFalse();
         }
     }
 }

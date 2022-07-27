@@ -3,6 +3,7 @@ package it.blue4.recipestore.domain;
 import it.blue4.recipestore.domain.model.Recipe;
 import it.blue4.recipestore.domain.model.RecipeId;
 import it.blue4.recipestore.domain.request.CreateRecipeRequest;
+import it.blue4.recipestore.domain.request.DeleteRecipeRequest;
 import it.blue4.recipestore.domain.request.RetrieveOneRecipeRequest;
 import org.springframework.stereotype.Service;
 
@@ -28,5 +29,9 @@ public class RecipeService {
 
     public List<Recipe> retrieveAll() {
         return recipeRepository.retrieveAll();
+    }
+
+    public void delete(DeleteRecipeRequest request) {
+        recipeRepository.delete(new RecipeId(request.id()));
     }
 }
