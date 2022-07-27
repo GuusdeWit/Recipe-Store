@@ -174,4 +174,102 @@ class RecipeTest {
                 )
         );
     }
+
+    @ParameterizedTest
+    @MethodSource("provideInvalidArgumentsForAllArgsConstructor")
+    void constructor_shouldNotAllowNullParametersForAllArgs(
+            Title title,
+            Description description,
+            Instructions instructions,
+            Servings servings,
+            List<Ingredient> ingredients,
+            RecipeId recipeId
+    ) {
+        assertThrows(ValidationException.class, () -> new Recipe(
+                title,
+                description,
+                instructions,
+                servings,
+                ingredients,
+                recipeId)
+        );
+    }
+
+    static Stream<Arguments> provideInvalidArgumentsForAllArgsConstructor() {
+        Title title = new Title("title");
+        Description description = new Description("Description");
+        Instructions instructions = new Instructions("Instructions");
+        Servings servings = new Servings(2);
+        Ingredient ingredient = new Ingredient(
+                new IngredientName("ingredient name"),
+                IngredientType.MEAT,
+                new IngredientQuantity(BigDecimal.ONE, MeasuringUnit.PIECE)
+        );
+        return Stream.of(
+                Arguments.of(
+                        title,
+                        description,
+                        instructions,
+                        servings,
+                        emptyList(),
+                        null
+                ),
+                Arguments.of(
+                        null,
+                        description,
+                        instructions,
+                        servings,
+                        emptyList(),
+                        new RecipeId()
+                ),
+                Arguments.of(
+                        title,
+                        null,
+                        instructions,
+                        servings,
+                        emptyList(),
+                        new RecipeId()
+                ),
+                Arguments.of(
+                        title,
+                        description,
+                        null,
+                        servings,
+                        emptyList(),
+                        new RecipeId()
+                ),
+                Arguments.of(
+                        title,
+                        description,
+                        instructions,
+                        null,
+                        emptyList(),
+                        new RecipeId()
+                ),
+                Arguments.of(
+                        title,
+                        description,
+                        instructions,
+                        servings,
+                        null,
+                        new RecipeId()
+                ),
+                Arguments.of(
+                        title,
+                        description,
+                        instructions,
+                        servings,
+                        new ArrayList<>(Arrays.asList(null, ingredient)),
+                        new RecipeId()
+                ),
+                Arguments.of(
+                        title,
+                        description,
+                        instructions,
+                        servings,
+                        new ArrayList<>(Arrays.asList(ingredient, null)),
+                        new RecipeId()
+                )
+        );
+    }
 }

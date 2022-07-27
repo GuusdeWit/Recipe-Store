@@ -11,7 +11,7 @@ import static it.blue4.recipestore.util.ValidationUtils.requireAllNonNull;
 import static it.blue4.recipestore.util.ValidationUtils.requireNonNull;
 
 public class Recipe {
-    private final RecipeId recipeId = new RecipeId();
+    private final RecipeId recipeId;
     private final Title title;
     private final Description description;
     private final Instructions instructions;
@@ -19,6 +19,11 @@ public class Recipe {
     private final List<Ingredient> ingredients;
 
     public Recipe(Title title, Description description, Instructions instructions, Servings servings, List<Ingredient> ingredients) {
+        this(title, description, instructions, servings, ingredients, new RecipeId());
+    }
+
+    public Recipe(Title title, Description description, Instructions instructions, Servings servings, List<Ingredient> ingredients, RecipeId recipeId) {
+        this.recipeId = requireNonNull(recipeId);
         this.title = requireNonNull(title);
         this.description = requireNonNull(description);
         this.instructions = requireNonNull(instructions);

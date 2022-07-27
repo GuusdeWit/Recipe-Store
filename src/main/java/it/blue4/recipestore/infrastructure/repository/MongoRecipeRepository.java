@@ -24,6 +24,7 @@ public class MongoRecipeRepository implements RecipeRepository {
 
     @Override
     public Optional<Recipe> retrieveById(RecipeId recipeId) {
-        throw new RuntimeException("Not implemented");
+        MongoRecipe data = mongoTemplate.findById(recipeId.id(), MongoRecipe.class);
+        return Optional.ofNullable(data).map(MongoRecipe::toDomainRecipe);
     }
 }

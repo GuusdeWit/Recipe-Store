@@ -1,6 +1,11 @@
 package it.blue4.recipestore.infrastructure.repository;
 
+import it.blue4.recipestore.domain.model.Description;
+import it.blue4.recipestore.domain.model.Instructions;
 import it.blue4.recipestore.domain.model.Recipe;
+import it.blue4.recipestore.domain.model.RecipeId;
+import it.blue4.recipestore.domain.model.Servings;
+import it.blue4.recipestore.domain.model.Title;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -73,6 +78,17 @@ public class MongoRecipe {
                         in.quantity().unit().name()
                 )).toList(),
                 recipe.isVegetarian()
+        );
+    }
+
+    public Recipe toDomainRecipe() {
+        return new Recipe(
+                new Title(title),
+                new Description(description),
+                new Instructions(instructions),
+                new Servings(numberOfServings),
+                ingredients.stream().map(MongoIngredient::toDomainIngredient).toList(),
+                new RecipeId(id)
         );
     }
 }
