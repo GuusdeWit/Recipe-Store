@@ -11,8 +11,9 @@ import it.blue4.recipestore.domain.model.ingredient.IngredientName;
 import it.blue4.recipestore.domain.model.ingredient.IngredientQuantity;
 import it.blue4.recipestore.domain.model.ingredient.IngredientType;
 import it.blue4.recipestore.domain.model.ingredient.MeasuringUnit;
-import it.blue4.recipestore.domain.request.RetrieveRecipeRequest;
+import it.blue4.recipestore.domain.request.RetrieveOneRecipeRequest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -44,32 +45,64 @@ class RecipeRetrievalTest {
             )
     );
 
-    @Test
-    @DisplayName("retrieve should return a Recipe from the repository")
-    void retrieveShouldReturnRecipe() {
-        // Given
-        UUID id = defaultRecipe.getRecipeId().id();
-        RetrieveRecipeRequest request = new RetrieveRecipeRequest(id);
+    @Nested
+    class RetrieveOneTests {
 
-        // When
-        Mockito.when(repository.retrieveById(new RecipeId(id))).thenReturn(Optional.of(defaultRecipe));
-        Recipe result = recipeService.retrieve(request);
+        @Test
+        @DisplayName("retrieve should return a Recipe from the repository")
+        void retrieveShouldReturnRecipe() {
+            // Given
+            UUID id = defaultRecipe.getRecipeId().id();
+            RetrieveOneRecipeRequest request = new RetrieveOneRecipeRequest(id);
 
-        // Then
-        assertThat(result).isEqualTo(defaultRecipe);
+            // When
+            Mockito.when(repository.retrieveById(new RecipeId(id))).thenReturn(Optional.of(defaultRecipe));
+            Recipe result = recipeService.retrieve(request);
+
+            // Then
+            assertThat(result).isEqualTo(defaultRecipe);
+        }
+
+        @Test
+        @DisplayName("retrieve should throw a NotFoundException if repository returns empty optional")
+        void retrieveShouldThrowIfNotFound() {
+            // Given
+            UUID id = defaultRecipe.getRecipeId().id();
+            RetrieveOneRecipeRequest request = new RetrieveOneRecipeRequest(id);
+
+            // When
+            Mockito.when(repository.retrieveById(any())).thenReturn(Optional.empty());
+
+            // Then
+            assertThrows(NotFoundException.class, () -> recipeService.retrieve(request));
+        }
+
+        @Test
+        @DisplayName("retrieve should throw a ValidationException if id is null")
+        void retrieveShouldThrowIfNoIdProvided() {
+            // Given
+            RetrieveOneRecipeRequest request = new RetrieveOneRecipeRequest(null);
+
+            // Then
+            assertThrows(ValidationException.class, () -> recipeService.retrieve(request));
+        }
     }
 
-    @Test
-    @DisplayName("retrieve should throw a NotFoundException if repository returns empty optional")
-    void retrieveShouldThrowIfNotFound() {
-        // Given
-        UUID id = defaultRecipe.getRecipeId().id();
-        RetrieveRecipeRequest request = new RetrieveRecipeRequest(id);
+    @Nested
+    class RetrievalMultipleTests {
 
-        // When
-        Mockito.when(repository.retrieveById(any())).thenReturn(Optional.empty());
+        @Test
+        @DisplayName("retrieveAll should retrieve all from the repository")
+        void retrieveAllShouldReturnList() {
+            // Given
+            List<Recipe> recipes = List.of(defaultRecipe);
 
-        // Then
-        assertThrows(NotFoundException.class, () -> recipeService.retrieve(request));
+            // When
+            Mockito.when(repository.retrieveAll()).thenReturn(recipes);
+            List<Recipe> result = recipeService.retrieveAll();
+
+            // Then
+            assertThat(result).containsExactlyElementsOf(recipes);
+        }
     }
 }

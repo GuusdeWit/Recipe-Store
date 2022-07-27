@@ -6,6 +6,7 @@ import it.blue4.recipestore.domain.model.RecipeId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -26,5 +27,11 @@ public class MongoRecipeRepository implements RecipeRepository {
     public Optional<Recipe> retrieveById(RecipeId recipeId) {
         MongoRecipe data = mongoTemplate.findById(recipeId.id(), MongoRecipe.class);
         return Optional.ofNullable(data).map(MongoRecipe::toDomainRecipe);
+    }
+
+    @Override
+    public List<Recipe> retrieveAll() {
+        List<MongoRecipe> data = mongoTemplate.findAll(MongoRecipe.class);
+        return data.stream().map(MongoRecipe::toDomainRecipe).toList();
     }
 }

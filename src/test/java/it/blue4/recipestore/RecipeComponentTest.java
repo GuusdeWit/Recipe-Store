@@ -115,7 +115,7 @@ class RecipeComponentTest {
     class GetTests {
 
         @Test
-        @DisplayName("Get should return data with 200 if found")
+        @DisplayName("get should return data with 200 if found")
         void getShouldReturn200WhenFound() {
             UUID id = UUID.randomUUID();
             MongoRecipe mongoRecipe = new MongoRecipe(
@@ -149,7 +149,7 @@ class RecipeComponentTest {
         }
 
         @Test
-        @DisplayName("Get should return 404 when not found")
+        @DisplayName("get should return 404 when not found")
         void getShouldReturn404WhenNotFound() {
             UUID randomId = UUID.randomUUID();
             given()
@@ -159,6 +159,48 @@ class RecipeComponentTest {
                     .then()
                     .statusCode(HttpStatus.SC_NOT_FOUND)
                     .body("message", containsString("The requested data was not found"));
+        }
+
+        @Test
+        @DisplayName("get all should return all persisted recipes")
+        void getAllShouldReturnAll() {
+
+            UUID id1 = UUID.randomUUID();
+            MongoRecipe mongoRecipe1 = new MongoRecipe(
+                    id1,
+                    "my title",
+                    "descriptive",
+                    "these are the instructions",
+                    5,
+                    List.of(
+                            new MongoIngredient("ing", "MEAT", BigDecimal.ONE, "PIECE")
+                    ),
+                    false
+            );
+
+            UUID id2 = UUID.randomUUID();
+            MongoRecipe mongoRecipe2 = new MongoRecipe(
+                    id2,
+                    "my second title",
+                    "descriptive",
+                    "these are the instructions",
+                    1,
+                    List.of(
+                            new MongoIngredient("name", "MEAT", BigDecimal.valueOf(1.7), "TEASPOON")
+                    ),
+                    false
+            );
+
+            mongoTemplate.insert(mongoRecipe1);
+            mongoTemplate.insert(mongoRecipe2);
+
+            given()
+                    .basePath("/recipes")
+                    .when()
+                    .request("GET")
+                    .then()
+                    .statusCode(HttpStatus.SC_OK)
+                    .body("size()", equalTo(2));
         }
     }
 }

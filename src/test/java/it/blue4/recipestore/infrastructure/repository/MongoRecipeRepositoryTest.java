@@ -12,6 +12,7 @@ import it.blue4.recipestore.domain.model.ingredient.IngredientQuantity;
 import it.blue4.recipestore.domain.model.ingredient.IngredientType;
 import it.blue4.recipestore.domain.model.ingredient.MeasuringUnit;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -128,7 +129,7 @@ class MongoRecipeRepositoryTest {
     @Nested
     class RetrieveTests {
         @Test
-        void RetrieveByIdShouldReturnEmptyIfNotFound() {
+        void retrieveByIdShouldReturnEmptyIfNotFound() {
             // Given
             UUID randomId = UUID.randomUUID();
 
@@ -140,7 +141,7 @@ class MongoRecipeRepositoryTest {
         }
 
         @Test
-        void RetrieveByIdShouldReturnRecipeWhenFound() {
+        void retrieveByIdShouldReturnRecipeWhenFound() {
             // Given
             UUID id = UUID.randomUUID();
             MongoRecipe mongoRecipe = new MongoRecipe(
@@ -174,6 +175,45 @@ class MongoRecipeRepositoryTest {
             assertThat(ingredient.type().name()).isEqualTo(mongoRecipe.getIngredients().get(0).type());
             assertThat(ingredient.quantity().amount()).isEqualTo(mongoRecipe.getIngredients().get(0).amount());
             assertThat(ingredient.quantity().unit().name()).isEqualTo(mongoRecipe.getIngredients().get(0).unit());
+        }
+
+        @Test
+        void retrieveAllShouldReturnListOfAllPersistedRecipes() {
+            // Given
+            UUID id1 = UUID.randomUUID();
+            MongoRecipe mongoRecipe1 = new MongoRecipe(
+                    id1,
+                    "my title",
+                    "descriptive",
+                    "these are the instructions",
+                    5,
+                    List.of(
+                            new MongoIngredient("ing", "MEAT", BigDecimal.ONE, "PIECE")
+                    ),
+                    false
+            );
+
+            UUID id2 = UUID.randomUUID();
+            MongoRecipe mongoRecipe2 = new MongoRecipe(
+                    id2,
+                    "my second title",
+                    "descriptive",
+                    "these are the instructions",
+                    1,
+                    List.of(
+                            new MongoIngredient("name", "MEAT", BigDecimal.valueOf(1.7), "TEASPOON")
+                    ),
+                    false
+            );
+
+            mongoTemplate.insert(mongoRecipe1);
+            mongoTemplate.insert(mongoRecipe2);
+
+            // When
+            var result = repository.retrieveAll();
+
+            // Then
+            assertThat(result).hasSize(2);
         }
     }
 }
