@@ -1,9 +1,11 @@
 package it.blue4.recipestore.application;
 
 import it.blue4.recipestore.domain.RecipeService;
+import it.blue4.recipestore.domain.ValidationException;
 import it.blue4.recipestore.domain.request.CreateRecipeRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,5 +24,10 @@ public class RecipeController {
         CreateRecipeRequest request = body.toDomainRequest();
         recipeService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    ResponseEntity<Error> validationExceptionHandler() {
+        return ResponseEntity.badRequest().body(new Error("Validation error when processing request"));
     }
 }

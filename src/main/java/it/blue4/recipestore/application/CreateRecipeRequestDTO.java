@@ -5,6 +5,7 @@ import it.blue4.recipestore.domain.request.CreateRecipeRequest;
 import it.blue4.recipestore.domain.request.IncomingIngredient;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 public class CreateRecipeRequestDTO {
@@ -48,7 +49,7 @@ public class CreateRecipeRequestDTO {
                 description,
                 instructions,
                 numberOfServings,
-                ingredients.stream().map(IngredientDTO::toIncomingIngredient).toList()
+                ingredients == null ? Collections.emptyList() : ingredients.stream().map(IngredientDTO::toIncomingIngredient).toList()
         );
     }
 }
