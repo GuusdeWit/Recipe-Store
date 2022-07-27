@@ -2,7 +2,9 @@ package it.blue4.recipestore.domain;
 
 import it.blue4.recipestore.domain.model.Recipe;
 import it.blue4.recipestore.domain.request.CreateRecipeRequest;
+import org.springframework.stereotype.Service;
 
+@Service
 public class RecipeService {
     private final RecipeRepository recipeRepository;
 
