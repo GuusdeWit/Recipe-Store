@@ -1,5 +1,6 @@
-package it.blue4.recipestore.infrastructure;
+package it.blue4.recipestore.infrastructure.repository;
 
+import it.blue4.recipestore.domain.model.Recipe;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -56,5 +57,22 @@ public class MongoRecipe {
 
     public boolean isVegetarian() {
         return vegetarian;
+    }
+
+    public static MongoRecipe from(Recipe recipe) {
+        return new MongoRecipe(
+                recipe.getRecipeId().id(),
+                recipe.getTitle().title(),
+                recipe.getDescription().description(),
+                recipe.getInstructions().instructions(),
+                recipe.getServings().number(),
+                recipe.getIngredients().stream().map(in -> new MongoIngredient(
+                        in.name().name(),
+                        in.type().name(),
+                        in.quantity().amount(),
+                        in.quantity().unit().name()
+                )).toList(),
+                recipe.isVegetarian()
+        );
     }
 }

@@ -1,4 +1,4 @@
-package it.blue4.recipestore.infrastructure;
+package it.blue4.recipestore.infrastructure.repository;
 
 import it.blue4.recipestore.domain.model.Description;
 import it.blue4.recipestore.domain.model.Instructions;
@@ -73,16 +73,16 @@ class MongoRecipeRepositoryTest {
         assertThat(result.getIngredients()).hasSize(2);
 
         var firstIngredient = result.getIngredients().get(0);
-        assertThat(firstIngredient.getName()).isEqualTo(recipe.getIngredients().get(0).name().name());
-        assertThat(firstIngredient.getType()).isEqualTo(recipe.getIngredients().get(0).type().name());
-        assertThat(firstIngredient.getAmount()).isEqualTo(recipe.getIngredients().get(0).quantity().amount());
-        assertThat(firstIngredient.getUnit()).isEqualTo(recipe.getIngredients().get(0).quantity().unit().name());
+        assertThat(firstIngredient.name()).isEqualTo(recipe.getIngredients().get(0).name().name());
+        assertThat(firstIngredient.type()).isEqualTo(recipe.getIngredients().get(0).type().name());
+        assertThat(firstIngredient.amount()).isEqualTo(recipe.getIngredients().get(0).quantity().amount());
+        assertThat(firstIngredient.unit()).isEqualTo(recipe.getIngredients().get(0).quantity().unit().name());
 
         var secondIngredient = result.getIngredients().get(1);
-        assertThat(secondIngredient.getName()).isEqualTo(recipe.getIngredients().get(1).name().name());
-        assertThat(secondIngredient.getType()).isEqualTo(recipe.getIngredients().get(1).type().name());
-        assertThat(secondIngredient.getAmount()).isEqualTo(recipe.getIngredients().get(1).quantity().amount());
-        assertThat(secondIngredient.getUnit()).isEqualTo(recipe.getIngredients().get(1).quantity().unit().name());
+        assertThat(secondIngredient.name()).isEqualTo(recipe.getIngredients().get(1).name().name());
+        assertThat(secondIngredient.type()).isEqualTo(recipe.getIngredients().get(1).type().name());
+        assertThat(secondIngredient.amount()).isEqualTo(recipe.getIngredients().get(1).quantity().amount());
+        assertThat(secondIngredient.unit()).isEqualTo(recipe.getIngredients().get(1).quantity().unit().name());
     }
 
     @ParameterizedTest
