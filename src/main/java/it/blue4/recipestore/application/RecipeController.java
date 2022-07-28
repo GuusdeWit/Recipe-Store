@@ -9,6 +9,7 @@ import it.blue4.recipestore.domain.ValidationException;
 import it.blue4.recipestore.domain.model.Recipe;
 import it.blue4.recipestore.domain.request.CreateRecipeRequest;
 import it.blue4.recipestore.domain.request.DeleteRecipeRequest;
+import it.blue4.recipestore.domain.request.FilteredRetrieveRecipeRequest;
 import it.blue4.recipestore.domain.request.RetrieveOneRecipeRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -42,8 +45,21 @@ public class RecipeController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<RecipeDTO>> getAllRecipes() {
-        List<Recipe> recipes = recipeService.retrieveAll();
+    public ResponseEntity<List<RecipeDTO>> getAllRecipesWithFilters(
+            @RequestParam Optional<Integer> numberOfServings,
+            @RequestParam Optional<String> instructionContains,
+            @RequestParam Optional<List<String>> includeIngredients,
+            @RequestParam Optional<List<String>> excludeIngredients,
+            @RequestParam Optional<Boolean> isVegetarian
+            ) {
+        FilteredRetrieveRecipeRequest request = new FilteredRetrieveRecipeRequest(
+                numberOfServings,
+                instructionContains,
+                includeIngredients,
+                excludeIngredients,
+                isVegetarian
+        );
+        List<Recipe> recipes = recipeService.retrieveAllFilteredBy(request);
         return ResponseEntity.ok(recipes.stream().map(RecipeDTO::from).toList());
     }
 

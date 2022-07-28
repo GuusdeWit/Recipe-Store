@@ -33,6 +33,65 @@ public class MongoTestPersistService implements TestPersistService {
     }
 
     @Override
+    public void persistMultiple(List<UUID> ids) {
+        MongoRecipe mongoRecipe1 = new MongoRecipe(
+                ids.get(0),
+                title,
+                description,
+                "These are the instructions",
+                2,
+                List.of(
+                        new MongoIngredient(
+                                "sausage",
+                                ingredientType,
+                                ingredientAmount,
+                                ingredientUnit)
+                ),
+                false
+        );
+        mongoTemplate.insert(mongoRecipe1);
+
+        MongoRecipe mongoRecipe2 = new MongoRecipe(
+                ids.get(1),
+                title,
+                description,
+                "These are the instructions",
+                3,
+                List.of(
+                        new MongoIngredient(
+                                "cheese",
+                                ingredientType,
+                                ingredientAmount,
+                                ingredientUnit)
+                ),
+                true
+        );
+        mongoTemplate.insert(mongoRecipe2);
+
+        MongoRecipe mongoRecipe3 = new MongoRecipe(
+                ids.get(2),
+                title,
+                description,
+                "these instructions are hard to execute",
+                3,
+                List.of(
+                        new MongoIngredient(
+                                "cheese",
+                                ingredientType,
+                                ingredientAmount,
+                                ingredientUnit),
+                        new MongoIngredient(
+                                "fish",
+                                ingredientType,
+                                ingredientAmount,
+                                ingredientUnit)
+                ),
+                false
+        );
+        mongoTemplate.insert(mongoRecipe3);
+    }
+
+    @Override
     public boolean dataStoreDoesNotContainElementWithId(UUID id) {
         var data = mongoTemplate.findById(id, MongoRecipe.class);
         return data != null;

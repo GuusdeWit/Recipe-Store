@@ -15,6 +15,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -159,6 +160,25 @@ class RecipeComponentTest {
                     .then()
                     .statusCode(HttpStatus.SC_OK)
                     .body("size()", equalTo(2));
+        }
+
+        @Test
+        @DisplayName("get all should apply filters")
+        void getAllShouldReturnFiltered() {
+            persistService.persistMultiple(Stream.generate(UUID::randomUUID).limit(3).toList());
+
+            given()
+                    .basePath("/recipes")
+                    .queryParam("isVegetarian", false)
+                    .queryParam("numberOfServings", 3)
+                    .queryParam("instructionContains", "instructions")
+                    .queryParam("includeIngredients", "sausage")
+                    .queryParam("excludeIngredients", "fish")
+                    .when()
+                    .request("GET")
+                    .then()
+                    .statusCode(HttpStatus.SC_OK)
+                    .body("size()", equalTo(0));
         }
     }
 

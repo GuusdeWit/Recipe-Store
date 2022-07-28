@@ -12,6 +12,11 @@ import it.blue4.recipestore.domain.model.ingredient.IngredientName;
 import it.blue4.recipestore.domain.model.ingredient.IngredientQuantity;
 import it.blue4.recipestore.domain.model.ingredient.IngredientType;
 import it.blue4.recipestore.domain.model.ingredient.MeasuringUnit;
+import it.blue4.recipestore.domain.request.filter.Filter;
+import it.blue4.recipestore.domain.request.filter.IngredientsFilter;
+import it.blue4.recipestore.domain.request.filter.InstructionsContainsFilter;
+import it.blue4.recipestore.domain.request.filter.ServingsFilter;
+import it.blue4.recipestore.domain.request.filter.VegetarianFilter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,6 +29,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -185,6 +191,85 @@ class MongoRecipeRepositoryTest {
 
             // Then
             assertThat(result).hasSize(2);
+        }
+
+        @ParameterizedTest
+        @MethodSource("provideFilters")
+        void retrieveAllFilteredShouldExecuteFilters(List<Filter> filters, List<UUID> allIds, List<UUID> expectedIds) {
+            // Given
+            persistService.persistMultiple(allIds);
+
+            // When
+            var result = repository.retrieveAllFilteredBy(filters);
+
+            // Then
+            assertThat(result.stream().map(Recipe::getRecipeId).map(RecipeId::id)).containsExactlyElementsOf(expectedIds);
+        }
+
+        static Stream<Arguments> provideFilters() {
+            UUID id1 = UUID.randomUUID();
+            UUID id2 = UUID.randomUUID();
+            UUID id3 = UUID.randomUUID();
+            List<UUID> allIds = List.of(id1, id2, id3);
+            return Stream.of(
+                    Arguments.of(
+                            List.of(new VegetarianFilter(true)),
+                            allIds,
+                            List.of(id2)
+                    ),
+                    Arguments.of(
+                            List.of(new ServingsFilter(2)),
+                            allIds,
+                            List.of(id1)
+                    ),
+                    Arguments.of(
+                            List.of(new InstructionsContainsFilter("hard")),
+                            allIds,
+                            List.of(id3)
+                    ),
+                    Arguments.of(
+                            List.of(new IngredientsFilter(List.of("cheese", "fish"), Collections.emptyList())),
+                            allIds,
+                            List.of(id3)
+                    ),
+                    Arguments.of(
+                            List.of(new IngredientsFilter(Collections.emptyList(), List.of("cheese", "fish"))),
+                            allIds,
+                            List.of(id1)
+                    ),
+                    Arguments.of(
+                            List.of(new IngredientsFilter(Collections.emptyList(), List.of("fish")), new ServingsFilter(3)),
+                            allIds,
+                            List.of(id2)
+                    ),
+                    Arguments.of(
+                            List.of(new InstructionsContainsFilter("instructions"), new VegetarianFilter(false)),
+                            allIds,
+                            List.of(id1, id3)
+                    ),
+                    Arguments.of(
+                            List.of(
+                                    new InstructionsContainsFilter("instructions"),
+                                    new VegetarianFilter(false),
+                                    new ServingsFilter(3),
+                                    new IngredientsFilter(List.of("sausage"), List.of("fish"))
+                            ),
+                            allIds,
+                            Collections.emptyList()
+                    ),
+                    Arguments.of(
+                            List.of(
+                                    new IngredientsFilter(List.of("cheese"), List.of("fish"))
+                            ),
+                            allIds,
+                            List.of(id2)
+                    ),
+                    Arguments.of(
+                            List.of(),
+                            allIds,
+                            allIds
+                    )
+            );
         }
     }
 
