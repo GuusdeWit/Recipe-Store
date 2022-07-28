@@ -125,6 +125,7 @@ class RecipeComponentTest {
                     .and().body("description", equalTo(TestPersistService.description))
                     .and().body("instructions", equalTo(TestPersistService.instructions))
                     .and().body("numberOfServings", equalTo(TestPersistService.numberOfServings))
+                    .and().body("isVegetarian", equalTo(TestPersistService.vegetarian))
                     .and().body("ingredients[0].name", equalTo(TestPersistService.ingredientName))
                     .and().body("ingredients[0].type", equalTo(TestPersistService.ingredientType))
                     .and().body("ingredients[0].amount", is(TestPersistService.ingredientAmount.floatValue()))

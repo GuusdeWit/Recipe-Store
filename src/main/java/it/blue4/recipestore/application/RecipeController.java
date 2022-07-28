@@ -1,8 +1,14 @@
 package it.blue4.recipestore.application;
 
-import it.blue4.recipestore.application.dto.CreateRecipeRequestDTO;
-import it.blue4.recipestore.application.dto.Error;
-import it.blue4.recipestore.application.dto.RecipeDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import it.blue4.recipestore.application.dto.incoming.CreateRecipeRequestDTO;
+import it.blue4.recipestore.application.dto.outgoing.Error;
+import it.blue4.recipestore.application.dto.outgoing.RecipeDTO;
 import it.blue4.recipestore.domain.NotFoundException;
 import it.blue4.recipestore.domain.RecipeService;
 import it.blue4.recipestore.domain.ValidationException;
@@ -38,6 +44,17 @@ public class RecipeController {
     }
 
     @PostMapping()
+    @Operation(
+            summary = "Create a new recipe",
+            description = "This endpoint will create a new recipe based on the provided input",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Recipe created successfully"),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request",
+                            content = @Content(schema = @Schema(implementation = Error.class), mediaType = "application/json"))
+            }
+    )
     public ResponseEntity<Void> createRecipe(@RequestBody CreateRecipeRequestDTO body) {
         CreateRecipeRequest request = body.toDomainRequest();
         recipeService.create(request);
@@ -45,13 +62,40 @@ public class RecipeController {
     }
 
     @GetMapping()
+    @Operation(
+            summary = "Get all recipes",
+            description = "This endpoint will retrieve all recipes, filtered on the provided filters",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK",
+                            content = @Content(
+                                    array = @ArraySchema(schema = @Schema(implementation = RecipeDTO.class)),
+                                    mediaType = "application/json")),
+
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request",
+                            content = @Content(schema = @Schema(implementation = Error.class), mediaType = "application/json"))
+            }
+    )
     public ResponseEntity<List<RecipeDTO>> getAllRecipesWithFilters(
-            @RequestParam Optional<Integer> numberOfServings,
-            @RequestParam Optional<String> instructionContains,
-            @RequestParam Optional<List<String>> includeIngredients,
-            @RequestParam Optional<List<String>> excludeIngredients,
-            @RequestParam Optional<Boolean> isVegetarian
-            ) {
+            @RequestParam
+            @Parameter(description = "Filter based on the number of servings equal to provided value")
+            Optional<Integer> numberOfServings,
+            @RequestParam
+            @Parameter(description = "Filter based on the instructions containing the provided text")
+            Optional<String> instructionContains,
+            @RequestParam
+            @Parameter(description = "Filter based on including ingredients. Recipes will contain all provided ingredients")
+            Optional<List<String>> includeIngredients,
+            @RequestParam
+            @Parameter(description = "Filter based on excluding ingredients. Recipes will contain non of the provided ingredients")
+            Optional<List<String>> excludeIngredients,
+            @RequestParam
+            @Parameter(description = "Filter based on whether the dish is vegetarian. This is based on the ingredients in the recipe")
+            Optional<Boolean> isVegetarian
+    ) {
         FilteredRetrieveRecipeRequest request = new FilteredRetrieveRecipeRequest(
                 numberOfServings,
                 instructionContains,
@@ -64,6 +108,23 @@ public class RecipeController {
     }
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Get a recipe",
+            description = "This endpoint will retrieve a recipe with the provided id",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "OK",
+                            content = @Content(
+                                    schema = @Schema(implementation = RecipeDTO.class),
+                                    mediaType = "application/json")),
+
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Not found",
+                            content = @Content(schema = @Schema(implementation = Error.class), mediaType = "application/json"))
+            }
+    )
     public ResponseEntity<RecipeDTO> getRecipeById(@PathVariable UUID id) {
         RetrieveOneRecipeRequest request = new RetrieveOneRecipeRequest(id);
         Recipe recipe = recipeService.retrieve(request);
@@ -71,6 +132,10 @@ public class RecipeController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Delete a recipe",
+            description = "This endpoint will delete a recipe with the provided id"
+    )
     public ResponseEntity<Void> deleteRecipeById(@PathVariable UUID id) {
         DeleteRecipeRequest request = new DeleteRecipeRequest(id);
         recipeService.delete(request);

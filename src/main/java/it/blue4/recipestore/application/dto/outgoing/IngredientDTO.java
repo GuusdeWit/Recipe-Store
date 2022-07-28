@@ -1,4 +1,4 @@
-package it.blue4.recipestore.application.dto;
+package it.blue4.recipestore.application.dto.outgoing;
 
 import it.blue4.recipestore.domain.model.ingredient.Ingredient;
 

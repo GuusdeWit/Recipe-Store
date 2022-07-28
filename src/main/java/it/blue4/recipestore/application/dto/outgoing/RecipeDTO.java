@@ -1,4 +1,4 @@
-package it.blue4.recipestore.application.dto;
+package it.blue4.recipestore.application.dto.outgoing;
 
 import it.blue4.recipestore.domain.model.Recipe;
 
@@ -11,7 +11,8 @@ public record RecipeDTO(
         String description,
         String instructions,
         int numberOfServings,
-        List<IngredientDTO> ingredients
+        List<IngredientDTO> ingredients,
+        boolean isVegetarian
 ) {
 
     public static RecipeDTO from(Recipe recipe) {
@@ -21,7 +22,8 @@ public record RecipeDTO(
                 recipe.getDescription().description(),
                 recipe.getInstructions().instructions(),
                 recipe.getServings().number(),
-                recipe.getIngredients().stream().map(IngredientDTO::from).toList()
+                recipe.getIngredients().stream().map(IngredientDTO::from).toList(),
+                recipe.isVegetarian()
         );
     }
 }

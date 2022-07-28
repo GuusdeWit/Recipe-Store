@@ -27,4 +27,5 @@ public interface TestPersistService {
     BigDecimal ingredientAmount = BigDecimal.valueOf(1.5);
 
     String ingredientUnit = "PIECE";
+    boolean vegetarian = false;
 }

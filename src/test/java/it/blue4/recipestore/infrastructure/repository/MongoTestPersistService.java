@@ -27,7 +27,7 @@ public class MongoTestPersistService implements TestPersistService {
                 List.of(
                         new MongoIngredient(ingredientName, ingredientType, ingredientAmount, ingredientUnit)
                 ),
-                false
+                vegetarian
         );
         mongoTemplate.insert(mongoRecipe);
     }
